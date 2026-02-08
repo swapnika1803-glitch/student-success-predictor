@@ -1,46 +1,24 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LinearRegression
 
-# -----------------------------
-# Load Dataset
-# -----------------------------
-data = pd.read_csv("student_data.csv")
+# Title
+st.title("Study Hours Predictor")
 
-# Convert Pass/Fail to numeric
-data["Result"] = data["Result"].map({"Fail": 0, "Pass": 1})
+st.write("Enter study hours to predict marks")
 
-# Features and Target
-X = data[["StudyHours", "SleepHours", "Attendance", "PreviousMarks"]]
-y = data["Result"]
+# Sample dataset
+hours = np.array([1, 2, 3, 4, 5, 6, 7, 8]).reshape(-1, 1)
+marks = np.array([10, 20, 30, 40, 50, 60, 70, 80])
 
-# -----------------------------
-# Train Model
-# -----------------------------
-model = LogisticRegression()
-model.fit(X, y)
+# Train model
+model = LinearRegression()
+model.fit(hours, marks)
 
-# -----------------------------
-# Streamlit UI
-# -----------------------------
-st.title("Student Success Predictor")
+# User input
+study_hours = st.number_input("Enter study hours", min_value=0.0, max_value=12.0, step=0.5)
 
-st.write("Enter student details to predict result:")
-
-study_hours = st.number_input("Study Hours", min_value=0, max_value=12, value=4)
-sleep_hours = st.number_input("Sleep Hours", min_value=0, max_value=12, value=6)
-attendance = st.number_input("Attendance (%)", min_value=0, max_value=100, value=70)
-previous_marks = st.number_input("Previous Marks", min_value=0, max_value=100, value=50)
-
-# -----------------------------
-# Prediction
-# -----------------------------
+# Prediction button
 if st.button("Predict"):
-    input_data = np.array([[study_hours, sleep_hours, attendance, previous_marks]])
-    prediction = model.predict(input_data)
-
-    if prediction[0] == 1:
-        st.success("Prediction: Student will PASS")
-    else:
-        st.error("Prediction: Student may FAIL")
+    prediction = model.predict([[study_hours]])
+    st.success(f"Predicted Marks: {prediction[0]:.2f}")
